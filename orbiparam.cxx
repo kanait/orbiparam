@@ -29,8 +29,8 @@ using namespace kh_vecmath;
 #include "PNGImage.hxx"
 #include "PNGImage.hxx"
 
-int width = 512;
-int height = 512;
+int width = 800;
+int height = 800;
 // int width = 1024;
 // int height = 1024;
 
@@ -251,7 +251,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
   // x
   else if ( (key == GLFW_KEY_X) && (action == GLFW_PRESS) )
     {
-#if 0
+#if 1
       if ( cs_vertices.size() != 3 )
         {
           cout << "cannot compute orbifold parameterization. " << endl;
@@ -259,10 +259,10 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         }
 #endif
 
-      // for sphere50
-      cs_vertices.push_back( mesh.vertex_handle(2) );
-      cs_vertices.push_back( mesh.vertex_handle(23) );
-      cs_vertices.push_back( mesh.vertex_handle(17) );
+      // // for sphere50
+      // cs_vertices.push_back( mesh.vertex_handle(2) );
+      // cs_vertices.push_back( mesh.vertex_handle(23) );
+      // cs_vertices.push_back( mesh.vertex_handle(17) );
       
       // parameterization based on Euclidean orbifold
       std::vector<double> paramx;

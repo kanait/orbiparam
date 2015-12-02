@@ -792,13 +792,13 @@ public:
                      bool reverse ) {
     // if vh is OF_INTERNAL, apply add param_id to only 1-ring neighbor points
     // with OF_BOUNDARY or OF_CONESINGULARITY_PI2.
-    // cout << "internal 1-ring neighbor start" << endl;
+    // cout << "internal vt " << vh.idx() << " 1-ring neighbor start" << endl;
     for ( MyMesh::VertexVertexIter vv_it = mesh.vv_iter( vh ); vv_it.is_valid(); ++vv_it )
       {
         MyMesh::VertexHandle vvh = *vv_it;
         int id = vvh.idx();
         int rev_id = alt_param_id[vvh];
-        // cout << "vertex " << id << endl;
+        // cout << "\tvertex " << id << endl;
         if ( (vertex_type[ id ] == OF_BOUNDARY) ||
              (vertex_type[ id ] == OF_CONESINGULARITY_PI2)  )
           {
@@ -924,52 +924,68 @@ public:
     OpenMesh::VPropHandleT<VVWeights> vvws;
     mesh.add_property(vvws);
 
-    // cout << "1----------------------------------------------------------" << endl;
-    // determine param_id for OF_BOUNDARY and OF_CONESINGULARITY_PI2 vertices of 1-ring neighbors
     std::vector<unsigned int>& vertex_type = orbi.vertex_type();
-    for ( int i = 0; i < path.size()/2; ++i )
-      {
-        for ( int j = 1; j < path[i].size() - 1; ++j )
-          {
-            MyMesh::VertexHandle vh = path[i][j];    // current boundary vertex
-            MyMesh::VertexHandle pvh = path[i][j-1]; // prev boundary vertex
-            MyMesh::VertexHandle nvh = path[i][j+1]; // next boundary vertex
-            // bool reverse = ( i > 1 ) ? true : false;
-            // Since i < 2, reverse is always false.
-            bool reverse = false;
 
-            // processing OF_BOUNDARY point
-            // cout << "(a) boundary vt " << vh.idx() << endl;
+    // cout << "1----------------------------------------------------------" << endl;
+    // make consistent path from path no.0 and no.1
+    std::vector<MyMesh::VertexHandle> path01;
+    for ( int i = 0; i < path.size() / 2; ++i )
+      for ( int j = 0; j < path[i].size(); ++j )
+        if ( (i != 1) || (j != 0) ) path01.push_back( path[i][j] );
+
+    // determine param_id for OF_BOUNDARY and OF_CONESINGULARITY_PI2 vertices of 1-ring neighbors
+    for ( int i = 1; i < path01.size() - 1; ++i )
+      {
+    // for ( int i = 0; i < path.size()/2; ++i )
+    //   {
+    //     for ( int j = 1; j < path[i].size(); ++j )
+    //       {
+        // MyMesh::VertexHandle vh = path[i][j];    // current boundary vertex
+        // MyMesh::VertexHandle pvh = path[i][j-1]; // prev boundary vertex
+        // MyMesh::VertexHandle nvh = path[i][j+1]; // next boundary vertex
+        MyMesh::VertexHandle vh = path01[i];    // current boundary vertex
+        MyMesh::VertexHandle pvh = path01[i-1]; // prev boundary vertex
+        MyMesh::VertexHandle nvh = path01[i+1]; // next boundary vertex
+
+        // bool reverse = ( i > 1 ) ? true : false;
+        // Since i < 2, reverse is always false.
+        bool reverse = false;
+
+        // processing OF_BOUNDARY point
+        // cout << "(a) boundary vt " << vh.idx() << endl;
+        if ( vertex_type[vh.idx()] == OF_BOUNDARY )
+          {
             VVWeights& vvw = mesh.property(vvws, vh);
             setParamID_B( vh, pvh, nvh, vvw, alt_param_id, mesh, vertex_type, reverse );
             // vvw.Print();
-
-            // 1-ring neighbor vertices
-            // start vv_it is set to prev boundary vertex
-            MyMesh::VertexVertexIter vv_it = start_vv_iter( mesh.vv_iter( vh ), pvh );
-            // cout << "vt " << vt.idx() << " pvt " << pvt.idx() << " start " << svt.idx() << endl;
-            MyMesh::VertexHandle svh = *vv_it;
-            // cout << "svh " << svh.idx() << endl;
-            do {
-              // processing 1-ring neighbors of OF_BOUNDARY point
-              MyMesh::VertexHandle vvh = *vv_it;
-              // if ( (vvh != pvh) && (vvh != nvh) )
-              if ( vertex_type[vvh.idx()] == OF_INTERNAL )
-                {
-                  // cout << "(b) should be internal vt " << vvh.idx() << endl;
-                  VVWeights& vvvw = mesh.property(vvws, vvh);
-                  setParamID_I( vvh, vvvw, alt_param_id, mesh, vertex_type, reverse );
-                }
-
-              ++vv_it;
-              if ( !(vv_it.is_valid()) ) vv_it = mesh.vv_iter( vh ); // reset vv_it to start
-              if ( *vv_it == nvh )
-                {
-                  // cout << "evh " << nvh.idx() << endl;
-                  reverse = ( reverse == true ) ? false : true; // parameter is changed from nvt
-                }
-            } while ( *vv_it != svh );
           }
+
+        // 1-ring neighbor vertices
+        // start vv_it is set to prev boundary vertex
+        MyMesh::VertexVertexIter vv_it = start_vv_iter( mesh.vv_iter( vh ), pvh );
+        // cout << "vt " << vt.idx() << " pvt " << pvt.idx() << " start " << svt.idx() << endl;
+        MyMesh::VertexHandle svh = *vv_it;
+        // cout << "svh " << svh.idx() << endl;
+        do {
+          // processing 1-ring neighbors of OF_BOUNDARY point
+          MyMesh::VertexHandle vvh = *vv_it;
+          // if ( (vvh != pvh) && (vvh != nvh) )
+          if ( vertex_type[vvh.idx()] == OF_INTERNAL )
+            {
+              // cout << "(b) should be internal vt " << vvh.idx() << endl;
+              VVWeights& vvvw = mesh.property(vvws, vvh);
+              setParamID_I( vvh, vvvw, alt_param_id, mesh, vertex_type, reverse );
+            }
+
+          ++vv_it;
+          if ( !(vv_it.is_valid()) ) vv_it = mesh.vv_iter( vh ); // reset vv_it to start
+          if ( *vv_it == nvh )
+            {
+              // cout << "evh " << nvh.idx() << endl;
+              reverse = ( reverse == true ) ? false : true; // parameter is changed from nvt
+            }
+        } while ( *vv_it != svh );
+        // }
       }
     // cout << "2----------------------------------------------------------" << endl;
 
@@ -1060,7 +1076,7 @@ public:
 
                 // if ( (vertex_type[id] == OF_BOUNDARY) ||
                 //      (vertex_type[id] == OF_CONESINGULARITY_PI2))
-                // cout << "\tvt " << id << " type " << vertex_type[id] << " param id " << j << endl;
+                // cout << "\tvt " << id << " type " << vertex_type[id] << " param id " << j << " w " << vvw.w(k) << endl;
 
                 // set for x coord
                 tripletList.push_back( Eigen::Triplet<double>(i, j, vvw.w(k)) );
@@ -1321,6 +1337,9 @@ public:
     spmat.setFromTriplets( tripletList.begin(), tripletList.end() );
     spmat.makeCompressed();
 
+    // cout << "matrix A" << endl;
+    // cout << spmat << endl;
+
     // cout << "before param " << endl;
     // for ( int i = 0; i < paramx.size(); ++i )
     //   {
@@ -1381,11 +1400,13 @@ public:
     // "cut" mesh along the path
     //
 
+#if 0
     // make consistent path from path no.0 and no.1
     std::vector<MyMesh::VertexHandle> path01;
     for ( int i = 0; i < path.size() / 2; ++i )
       for ( int j = 0; j < path[i].size(); ++j )
         if ( (i != 1) || (j != 0) ) path01.push_back( path[i][j] );
+#endif
 
     // extract right side faces of a path
     std::vector<MyMesh::FaceHandle> right_faces;
