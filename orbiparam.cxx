@@ -271,6 +271,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
       // param.applyParam_Orbifold( mesh, cs_vertices, paramx, paramy, BICGSTAB, MVW );
       param.applyParam_Orbifold( mesh, cs_vertices, paramx, paramy, SPARSELU, MVW );
 
+#if 0      
+      // store param to vertex
       MyMesh::VertexIter v_it, v_end(mesh.vertices_end());
       for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
         {
@@ -279,10 +281,24 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
           MyMesh::Point p( paramx[id], paramy[id], 0.0 );
           mesh.set_point( vh, p );
         }
+#endif
+
+      // store param to texture 2d
+      mesh.request_vertex_texcoords2D();
+      MyMesh::VertexIter v_it, v_end(mesh.vertices_end());
+      for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
+        {
+          MyMesh::VertexHandle vh = *v_it;
+          int id = vh.idx();
+          MyMesh::TexCoord2D t( paramx[id], paramy[id] );
+          mesh.set_texcoord2D( vh, t );
+        }
 
       // write mesh to output.obj
       std::cout << "save mesh ... ";
-      if ( !OpenMesh::IO::write_mesh(mesh, "output.obj") )
+      OpenMesh::IO::Options opt;
+      opt += OpenMesh::IO::Options::VertexTexCoord;
+      if ( !OpenMesh::IO::write_mesh(mesh, "output.obj", opt) )
         {
           std::cerr << "Cannot write mesh to file. " << std::endl;
           return;
