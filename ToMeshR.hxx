@@ -14,7 +14,9 @@ public:
     int n_f = mymesh.n_faces();
     if ( n_v )  meshr.reservePoints( n_v );
     if ( n_f )  meshr.reserveIndices( n_f );
-
+    if ( mymesh.has_vertex_texcoords2D() )
+      meshr.reserveTexcoords( n_v, 2 );
+    
     MyMesh::VertexIter v_it, v_end(mymesh.vertices_end());
     int v_id = 0;
     for (v_it=mymesh.vertices_begin(); v_it!=v_end; ++v_it)
@@ -34,6 +36,16 @@ public:
           {
             MyMesh::VertexHandle fvh = *fv_it;
             meshr.setIndex( f_id, fvh.idx() ); ++f_id;
+          }
+      }
+    if ( mymesh.has_vertex_texcoords2D() )
+      {
+        for (v_it=mymesh.vertices_begin(); v_it!=v_end; ++v_it)
+          {
+            MyMesh::VertexHandle vh = *v_it;
+            MyMesh::TexCoord2D t = mymesh.texcoord2D( vh );
+            // cout << "id " << vh.idx() << " " << t[0] << " " << t[1] << endl;
+            meshr.setTexcoord( 2*vh.idx(), t[0], t[1] );
           }
       }
   };

@@ -109,12 +109,11 @@ bool first = true;
 #include "OFFRIO.hxx"
 #include "MeshR.hxx"
 #include "GLMeshVBO.hxx"
-#include "GLMeshR.hxx"
 
 MeshR   meshR;
+int tex_id;
 
 GLMeshVBO glmeshvbo;
-GLMeshR glmeshr;
 
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -158,28 +157,27 @@ void display()
   pane.setLight();
 
   pane.changeProgram( shading_program );
-  if ( render_mode == RENDER_VBO )
+
+  if ( shading_program == PHONG_TEXTURE )
     {
-      glmeshvbo.drawShading();
+      // ::glEnable( GL_TEXTURE_2D );
+      ::glBindTexture( GL_TEXTURE_2D, meshR.texID() );
     }
-  else if ( render_mode == RENDER_VAR )
+
+  glmeshvbo.drawShading();
+
+  if ( shading_program == PHONG_TEXTURE )
     {
-      //       glmeshr.drawColor();
-      glmeshr.drawShading();
+      ::glBindTexture( GL_TEXTURE_2D, 0 );
+      // ::glDisable( GL_TEXTURE_2D );
     }
+
   if ( glmeshvbo.isDrawWireframe() )
     {
       pane.changeProgram( WIREFRAME );
-      if ( render_mode == RENDER_VBO )
-        {
-          glmeshvbo.drawWireframe();
-        }
-      else if ( render_mode == RENDER_VAR )
-        {
-          //       glmeshr.drawColor();
-          glmeshr.drawWireframe();
-        }
-      
+      glmeshvbo.drawWireframe();
+
+      // cone singularity points
       glDisable( GL_LIGHTING );
       glColor3f( 1.0f, .0f, .0f );
       glPointSize( 5.0f );
@@ -232,6 +230,13 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
   else if ( (key == GLFW_KEY_4) && (action == GLFW_PRESS) )
     {
       shading_program = GOURAND_SHADING;
+      pane.changeProgram( shading_program );
+    }
+
+  // 5 PHONG_TEXTURE
+  else if ( (key == GLFW_KEY_5) && (action == GLFW_PRESS) )
+    {
+      shading_program = PHONG_TEXTURE;
       pane.changeProgram( shading_program );
     }
 
@@ -306,6 +311,17 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
       std::cout << "done." << std::endl;
 
       cs_vertices.clear();
+
+      // meshR recreation
+      meshR.clear();
+      ToMeshR tomeshr;
+      tomeshr.apply( mesh, meshR );
+      meshR.createVertexNormals();
+      meshR.setTexID( tex_id );
+
+      // GLMeshVBO recreation
+      glmeshvbo.clear();
+      glmeshvbo.setMesh( meshR );
     }
 
   // i
@@ -449,9 +465,9 @@ static void windowsize_callback(GLFWwindow* window, int w, int h )
 int main( int argc, char **argv )
 {
   //char filename[BUFSIZ];
-  if ( (argc < 2) || (argc > 2) )
+  if ( argc != 3 )
     {
-      std::cerr << "Usage: " << argv[0] << " in.off (or in.off.gz) ." << std::endl;
+      std::cerr << "Usage: " << argv[0] << " in.off|obj|ply in.png ." << std::endl;
       exit(1);
     }
 
@@ -477,7 +493,7 @@ int main( int argc, char **argv )
   // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  GLFWwindow* window = glfwCreateWindow( width, height, "VBO GLFW", NULL, NULL );
+  GLFWwindow* window = glfwCreateWindow( width, height, "Orbifold Parameterization", NULL, NULL );
   if ( !window )
     {
       glfwTerminate();
@@ -496,6 +512,11 @@ int main( int argc, char **argv )
   pane.initGL();
   pane.initGLEW();
 
+  std::vector<unsigned char> img;
+  int format, w, h;
+  tex_id = pane.loadTexture( argv[2], img, &format, &w, &h );
+  pane.assignTexture( tex_id, img, format, w, h );
+
   if ( !pane.initShader() ) return -1;
   
   // Point3f p( .0f, .0f, 25.0f );
@@ -513,18 +534,9 @@ int main( int argc, char **argv )
   //wglSwapIntervalEXT(0);
 #endif
 
-  glmeshr.setMesh( meshR );
-  glmeshr.setIsSmoothShading( true );
-  // glmeshr.setIsSmoothShading( false );
-  // glmeshr.setIsDrawWireframe( true );
-  //glmeshr.setMaterial( myMatl );
-  //glmeshr.setMaterial( 0 );
-
   glmeshvbo.setMesh( meshR );
   glmeshvbo.setIsSmoothShading( true );
   glmeshvbo.setIsDrawWireframe( true );
-  //glmeshvbo.setMaterial( myMatl );
-  //glmeshvbo.setMaterial( 0 );
 
   // GLFW rendering process
   while ( !glfwWindowShouldClose(window) )
@@ -539,7 +551,7 @@ int main( int argc, char **argv )
           if ( max_fps < f ) max_fps = f;
           sprintf( buf,"%.3f fps - max %.3f fps", f, max_fps );
         }
-      sprintf( txt, "VBO GLFW - %s", buf );
+      sprintf( txt, "Orbifold Parameterization - %s", buf );
       glfwSetWindowTitle( window, txt );
 
       if ( pngflag )
