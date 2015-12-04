@@ -123,7 +123,9 @@ GLMeshVBO glmeshvbo;
 #include "ToMeshR.hxx"
 
 MyMesh  mesh;
+Orbifold orbi;
 std::vector<MyMesh::VertexHandle> cs_vertices;
+bool isCalculated = false;
 
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -175,7 +177,7 @@ void display()
   if ( glmeshvbo.isDrawWireframe() )
     {
       pane.changeProgram( WIREFRAME );
-      glmeshvbo.drawWireframe();
+      // glmeshvbo.drawWireframe();
 
       // cone singularity points
       glDisable( GL_LIGHTING );
@@ -188,6 +190,22 @@ void display()
           glVertex3d( p[0], p[1], p[2] );
         }
       glEnd();
+
+      // boundary path
+      glColor3f( .0f, .0f, .0f );
+      glLineWidth( 3.0f );
+      std::vector<std::vector<MyMesh::VertexHandle> >& path = orbi.path();
+      for ( int i = 0; i < path.size() / 2; ++i ) // search for only two paths
+        {
+          // cone singularities are not concerned
+          glBegin(GL_LINE_STRIP);
+          for ( int j = 0; j < path[i].size(); ++j )
+            {
+              MyMesh::Point p = mesh.point( path[i][j] );
+              glVertex3d( p[0], p[1], p[2] );
+            }
+          glEnd();
+        }
     }
 
   pane.finish();
@@ -272,9 +290,10 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
       // parameterization based on Euclidean orbifold
       std::vector<double> paramx;
       std::vector<double> paramy;
+      orbi.setCSVertices( cs_vertices );
       Param param;
-      // param.applyParam_Orbifold( mesh, cs_vertices, paramx, paramy, BICGSTAB, MVW );
-      param.applyParam_Orbifold( mesh, cs_vertices, paramx, paramy, SPARSELU, MVW );
+      // param.applyParam_Orbifold( mesh, orbi, paramx, paramy, BICGSTAB, MVW );
+      param.applyParam_Orbifold( mesh, orbi, paramx, paramy, SPARSELU, MVW );
 
 #if 0      
       // store param to vertex
@@ -310,7 +329,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         }
       std::cout << "done." << std::endl;
 
-      cs_vertices.clear();
+      // cs_vertices.clear();
+      isCalculated = true;
 
       // meshR recreation
       meshR.clear();
@@ -377,38 +397,37 @@ static void mousebutton_callback(GLFWwindow* window, int button, int action, int
       pane.startZoom();
       pane.startMove();
 
-#if 1
-      int oldX = x; 
-      int oldY = y; 
-      int window_y = (height - y);
-      float norm_y = float(window_y)/float(height/2.0);
-      int window_x = x ;
-      float norm_x = float(window_x)/float(width/2.0);
-
-      float winZ=0;
-      glReadPixels( x, height-y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ );
-      double objX=0, objY=0, objZ=0;
-      gluUnProject(window_x,window_y, winZ,  MV,  P, viewport, &objX, &objY, &objZ);
-      MyMesh::Point q( objX, objY, objZ );
-
-      MyMesh::VertexIter v_it, v_end(mesh.vertices_end());
-      for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
+      if ( isCalculated == false )
         {
-          MyMesh::Point p = mesh.point( *v_it );
+          int oldX = x; 
+          int oldY = y; 
+          int window_y = (height - y);
+          float norm_y = float(window_y)/float(height/2.0);
+          int window_x = x ;
+          float norm_x = float(window_x)/float(width/2.0);
 
-          if( (p-q).norm()<0.01)
+          float winZ=0;
+          glReadPixels( x, height-y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ );
+          double objX=0, objY=0, objZ=0;
+          gluUnProject(window_x,window_y, winZ,  MV,  P, viewport, &objX, &objY, &objZ);
+          MyMesh::Point q( objX, objY, objZ );
+
+          MyMesh::VertexIter v_it, v_end(mesh.vertices_end());
+          for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
             {
-              int sel_i = v_it->idx();
+              MyMesh::Point p = mesh.point( *v_it );
 
-              cout << "vt " << sel_i << " selected. " << endl;
-              cs_vertices.push_back( *v_it );
-
-              // printf("Intersected at %d\n",i);
-              // printf("Pt [ %3.3f,%3.3f,%3.3f ]\n",X[i].x(), X[i].y(), X[i].z());
-              break;
+              if( (p-q).norm()<0.01)
+                {
+                  int sel_i = v_it->idx();
+                  cout << "vt " << sel_i << " selected. " << endl;
+                  cs_vertices.push_back( *v_it );
+                  // printf("Intersected at %d\n",i);
+                  // printf("Pt [ %3.3f,%3.3f,%3.3f ]\n",X[i].x(), X[i].y(), X[i].z());
+                  break;
+                }
             }
         }
-#endif
     }
   else if ( (button == GLFW_MOUSE_BUTTON_1) && (action == GLFW_RELEASE) )
     {
@@ -476,6 +495,8 @@ int main( int argc, char **argv )
       std::cerr << "Error: Cannot read mesh from " << argv[1] << std::endl;
       return 1;
     }
+
+  orbi.init( mesh );
 
   ToMeshR tomeshr;
   tomeshr.apply( mesh, meshR );

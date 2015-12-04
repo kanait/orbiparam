@@ -873,7 +873,8 @@ public:
   };
 
   int applyParam_Orbifold( MyMesh& mesh,
-                           std::vector<MyMesh::VertexHandle>& cs_vertices,
+                           Orbifold& orbi,
+                           // std::vector<MyMesh::VertexHandle>& cs_vertices,
                            std::vector<double>& paramx, std::vector<double>& paramy,
                            int sol_, int wei_ ) {
 
@@ -882,9 +883,10 @@ public:
     int n_vt = mesh.n_vertices();
 
     // set orbifold boundary
-    Orbifold orbi( mesh );
-    orbi.setCSVertices( cs_vertices );
     orbi.calcBoundaries();
+
+    // cone singularity vertices
+    std::vector<MyMesh::VertexHandle>& cs_vertices = orbi.cs_vertices();
 
     // parameters setup
     std::vector<std::vector<MyMesh::VertexHandle> >& path = orbi.path();
