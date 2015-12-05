@@ -293,7 +293,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
       orbi.setCSVertices( cs_vertices );
       Param param;
       // param.applyParam_Orbifold( mesh, orbi, paramx, paramy, BICGSTAB, MVW );
-      param.applyParam_Orbifold( mesh, orbi, paramx, paramy, SPARSELU, MVW );
+      // param.applyParam_Orbifold( mesh, orbi, paramx, paramy, SPARSELU, MVW );
+      param.applyParam_Orbifold( mesh, orbi, paramx, paramy, SPARSELU, COTW );
 
 #if 0      
       // store param to vertex
