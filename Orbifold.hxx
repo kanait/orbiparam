@@ -110,13 +110,9 @@ public:
     return true;
   };
 
-
 private:
 
   MyMesh* mymesh_;
-
-  // // center OF_CONESINGULARITY_PI2 vertex for boundary vertices (in eq.9b)
-  // std::map<MyMesh::VertexHandle,MyMesh::VertexHandle> center_;
 
   // first and last vertices are cone singularities
   std::vector<std::vector<MyMesh::VertexHandle> > path_;

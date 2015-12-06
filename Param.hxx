@@ -1458,13 +1458,27 @@ public:
         for ( int j = 1; j < path[i].size() - 1; ++j )
           {
             MyMesh::VertexHandle vh = path[i][j];    // current boundary vertex
+            // new vertex
             MyMesh::VertexHandle new_vh = mesh.add_vertex( mesh.point( vh ) );
+            // color
+            if ( mesh.has_vertex_colors() )
+              {
+                MyMesh::Color c = mesh.color(vh);
+                mesh.set_color( new_vh, c );
+              }
             // cout << "new bd vt " << new_vh.idx() << " param_id " << alt_param_id[vh] << endl;
           }
       }
     // OF_CONESINGULARITY_PI2 vertex
     cs_vt = cs_vertices[1];
+    // new vertex
     MyMesh::VertexHandle new_cs_vh = mesh.add_vertex( mesh.point(cs_vt) );
+    // color
+    if ( mesh.has_vertex_colors() )
+      {
+        MyMesh::Color cc = mesh.color(cs_vt);
+        mesh.set_color( new_cs_vh, cc );
+      }
     // cout << "new cs vt " << new_cs_vh.idx() << " param_id " << alt_param_id[cs_vt] << endl;
 
     // create vertex handles for new faces
@@ -1491,6 +1505,20 @@ public:
           }
       }
 
+    // change path vertices to new ones
+    for ( int i = path.size() / 2; i < path.size(); ++i ) // search for only two paths
+      {
+        for ( int j = 0; j < path[i].size(); ++j )
+          {
+            if ( ((i == path.size() / 2) && (j != 0)) ||
+                 ((i == path.size() - 1) && (j != path[i].size()-1)) )
+              {
+                MyMesh::VertexHandle ovh = path[i][j];
+                path[i][j] = mesh.vertex_handle( alt_param_id[ovh] );
+              }
+          }
+      }
+
     // delete right_faces and add new right faces
     mesh.request_face_status();
     // mesh.request_edge_status();
@@ -1507,37 +1535,6 @@ public:
     // cut done.
     mesh.garbage_collection();
  
-#if 0
-    //
-    // new mesh creation
-    //
-    MyMesh newmesh;
-    // vertices
-    std::vector<MyMesh::VertexHandle> vhandles(n_param);
-    for ( int i = 0; i < n_param; ++i )
-      {
-        vhandles[i] = newmesh.add_vertex( MyMesh::Point( paramx[i], paramy[i], 0.0 ) );
-      }
-
-    std::cout << "done." << std::endl;
-
-    // faces
-    MyMesh::FaceIter f_it, f_end(mesh.faces_end());
-    for (f_it=mesh.faces_begin(); f_it!=f_end; ++f_it)
-      {
-        std::vector<MyMesh::VertexHandle> face_vhandles;
-        MyMesh::FaceHandle fc = *f_it;
-        for ( MyMesh::FaceVertexIter fv_it = mesh.fv_iter( *f_it ); fv_it.is_valid(); ++fv_it )
-          {
-            MyMesh::VertexHandle vt = *fv_it; // vv_it.handle();
-            cout << "\t vt " << vt.idx() << endl;
-            face_vhandles.push_back( vhandles[vt.idx()] );
-          }
-        newmesh.add_face( face_vhandles );
-      }
-
-#endif
-
     return 0;
   };
 

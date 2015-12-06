@@ -56,6 +56,7 @@ static float myMatl[] = {
 };
 
 GLPanel pane;
+GLPanel pane2d;
 
 // for picking
 GLint viewport[4];
@@ -112,8 +113,12 @@ bool first = true;
 
 MeshR   meshR;
 int tex_id;
+MeshR   pmeshR;
 
 GLMeshVBO glmeshvbo;
+GLMeshVBO glmeshvbop;
+
+bool isDrawParamMesh = false;
 
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -141,75 +146,127 @@ void checkGLErrors(char *s)
 
 void display()
 {
-  pane.clear( width, height );
-  pane.setView();
+  if ( isDrawParamMesh == false )
+    {
+      pane.clear( width, height );
+      pane.setView();
 
 #if 1
-  glMatrixMode(GL_PROJECTION);
-  glGetIntegerv(GL_VIEWPORT, viewport); 
-  glGetDoublev(GL_PROJECTION_MATRIX, P);
-  glMatrixMode(GL_MODELVIEW);
-  glGetDoublev(GL_MODELVIEW_MATRIX, MV);
+      glMatrixMode(GL_PROJECTION);
+      glGetIntegerv(GL_VIEWPORT, viewport); 
+      glGetDoublev(GL_PROJECTION_MATRIX, P);
+      glMatrixMode(GL_MODELVIEW);
+      glGetDoublev(GL_MODELVIEW_MATRIX, MV);
 #endif
 
-  float current_light[3];
-  pane.getRealLightPosition( current_light );
-  pane.setLightPos( 0, current_light[0], current_light[1], current_light[2], 1.0f );
+      pane.setLight();
 
-  pane.setLight();
+      pane.changeProgram( shading_program );
 
-  pane.changeProgram( shading_program );
-
-  if ( shading_program == PHONG_TEXTURE )
-    {
-      // ::glEnable( GL_TEXTURE_2D );
-      ::glBindTexture( GL_TEXTURE_2D, meshR.texID() );
-    }
-
-  glmeshvbo.drawShading();
-
-  if ( shading_program == PHONG_TEXTURE )
-    {
-      ::glBindTexture( GL_TEXTURE_2D, 0 );
-      // ::glDisable( GL_TEXTURE_2D );
-    }
-
-  if ( glmeshvbo.isDrawWireframe() )
-    {
-      pane.changeProgram( WIREFRAME );
-      // glmeshvbo.drawWireframe();
-
-      // cone singularity points
-      glDisable( GL_LIGHTING );
-      glColor3f( 1.0f, .0f, .0f );
-      glPointSize( 5.0f );
-      glBegin(GL_POINTS);
-      for ( int i = 0; i < cs_vertices.size(); ++i )
+      if ( shading_program == PHONG_TEXTURE )
         {
-          MyMesh::Point p = mesh.point( cs_vertices[i] );
-          glVertex3d( p[0], p[1], p[2] );
+          // ::glEnable( GL_TEXTURE_2D );
+          ::glBindTexture( GL_TEXTURE_2D, meshR.texID() );
         }
-      glEnd();
 
-      // boundary path
-      glColor3f( .0f, .0f, .0f );
-      glLineWidth( 3.0f );
-      std::vector<std::vector<MyMesh::VertexHandle> >& path = orbi.path();
-      for ( int i = 0; i < path.size() / 2; ++i ) // search for only two paths
+      glmeshvbo.drawShading();
+
+      if ( shading_program == PHONG_TEXTURE )
         {
-          // cone singularities are not concerned
-          glBegin(GL_LINE_STRIP);
-          for ( int j = 0; j < path[i].size(); ++j )
+          ::glBindTexture( GL_TEXTURE_2D, 0 );
+          // ::glDisable( GL_TEXTURE_2D );
+        }
+
+      if ( glmeshvbo.isDrawWireframe() )
+        {
+          pane.changeProgram( WIREFRAME );
+          // glmeshvbo.drawWireframe();
+
+          // cone singularity points
+          glDisable( GL_LIGHTING );
+          glColor3f( 1.0f, .0f, .0f );
+          glPointSize( 5.0f );
+          glBegin(GL_POINTS);
+          for ( int i = 0; i < cs_vertices.size(); ++i )
             {
-              MyMesh::Point p = mesh.point( path[i][j] );
+              MyMesh::Point p = mesh.point( cs_vertices[i] );
               glVertex3d( p[0], p[1], p[2] );
             }
           glEnd();
+
+          // boundary path
+          glColor3f( .0f, .0f, .0f );
+          glLineWidth( 3.0f );
+          std::vector<std::vector<MyMesh::VertexHandle> >& path = orbi.path();
+          for ( int i = 0; i < path.size() / 2; ++i ) // search for only two paths
+            {
+              // cone singularities are not concerned
+              glBegin(GL_LINE_STRIP);
+              for ( int j = 0; j < path[i].size(); ++j )
+                {
+                  MyMesh::Point p = mesh.point( path[i][j] );
+                  glVertex3d( p[0], p[1], p[2] );
+                }
+              glEnd();
+            }
         }
+      pane.finish();
+      //   checkGLErrors("display");
+    }
+  else // draw 2d
+    {
+      pane2d.clear( width, height );
+      pane2d.setView();
+
+      // pane2d.setLight();
+      // pane2d.changeProgram( PHONG_SHADING );
+
+      pane.changeProgram( WIREFRAME );
+      glDisable( GL_LIGHTING );
+ 
+      glmeshvbop.drawShading();
+
+      if ( glmeshvbop.isDrawWireframe() )
+        {
+          pane.changeProgram( WIREFRAME );
+          glDisable( GL_LIGHTING );
+
+          std::vector<std::vector<MyMesh::VertexHandle> >& path = orbi.path();
+          // boundary path
+          glColor3f( .0f, .0f, 1.0f );
+          glLineWidth( 5.0f );
+          for ( int i = 0; i < path.size(); ++i ) // search for only two paths
+            {
+              // cone singularities are not concerned
+              glBegin(GL_LINE_STRIP);
+              for ( int j = 0; j < path[i].size(); ++j )
+                {
+                  MyMesh::TexCoord2D t = mesh.texcoord2D( path[i][j] );
+                  glVertex3d( t[0], t[1], 0.0 );
+                }
+              glEnd();
+            }
+          // cone singularity points
+          glColor3f( 1.0f, .0f, .0f );
+          glPointSize( 5.0f );
+          glBegin(GL_POINTS);
+          for ( int i = 0; i < path.size(); ++i ) // search for only two paths
+            {
+              for ( int j = 0; j < path[i].size(); ++j )
+                {
+                  if ( (j == 0) || (j == path[i].size()-1) )
+                    {
+                      MyMesh::TexCoord2D t = mesh.texcoord2D( path[i][j] );
+                      glVertex3d( t[0], t[1], 0.0 );
+                    }
+                }
+            }
+          glEnd();
+        }
+
+      pane2d.finish();
     }
 
-  pane.finish();
-  //   checkGLErrors("display");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -229,19 +286,12 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
   else if ( (key == GLFW_KEY_Q) && (action == GLFW_PRESS) )
     glfwSetWindowShouldClose(window, GL_TRUE);
 
-  // 1
-  else if ( (key == GLFW_KEY_1) && (action == GLFW_PRESS) )
-    render_mode = RENDER_VBO;
-
-  // 2
-  else if ( (key == GLFW_KEY_2) && (action == GLFW_PRESS) )
-    render_mode = RENDER_VAR;
-
   // 3 PHONG_SHADING
   else if ( (key == GLFW_KEY_3) && (action == GLFW_PRESS) )
     {
       shading_program = PHONG_SHADING;
       pane.changeProgram( shading_program );
+      isDrawParamMesh = false;
     }
 
   // 4 GOURAND_SHADING
@@ -249,6 +299,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     {
       shading_program = GOURAND_SHADING;
       pane.changeProgram( shading_program );
+      isDrawParamMesh = false;
     }
 
   // 5 PHONG_TEXTURE
@@ -256,6 +307,19 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     {
       shading_program = PHONG_TEXTURE;
       pane.changeProgram( shading_program );
+      isDrawParamMesh = false;
+    }
+
+  // 6 Parameter Mesh
+  else if ( (key == GLFW_KEY_6) && (action == GLFW_PRESS) )
+    {
+      // pane.initViewParameters( width, height );
+      // // pane.setViewPoint( .5f, .5f, -2.5f );
+      // // pane.setLookPoint( .5f, .5f, .0f );
+      // pane.initView();
+      // shading_program = PHONG_SHADING;
+      // pane.changeProgram( shading_program );
+      isDrawParamMesh = true;
     }
 
   // w
@@ -264,10 +328,12 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
       if ( glmeshvbo.isDrawWireframe() == false )
         {
           glmeshvbo.setIsDrawWireframe( true );
+          glmeshvbop.setIsDrawWireframe( true );
         }
       else
         {
           glmeshvbo.setIsDrawWireframe( false );
+          glmeshvbop.setIsDrawWireframe( false );
         }
     }
   
@@ -296,7 +362,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
       // param.applyParam_Orbifold( mesh, orbi, paramx, paramy, SPARSELU, MVW );
       param.applyParam_Orbifold( mesh, orbi, paramx, paramy, SPARSELU, COTW );
 
-#if 0      
+#if 0
       // store param to vertex
       MyMesh::VertexIter v_it, v_end(mesh.vertices_end());
       for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
@@ -323,6 +389,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
       std::cout << "save mesh ... ";
       OpenMesh::IO::Options opt;
       opt += OpenMesh::IO::Options::VertexTexCoord;
+      // opt += OpenMesh::IO::Options::VertexColor;
       if ( !OpenMesh::IO::write_mesh(mesh, "output.obj", opt) )
         {
           std::cerr << "Cannot write mesh to file. " << std::endl;
@@ -340,9 +407,15 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
       meshR.createVertexNormals();
       meshR.setTexID( tex_id );
 
+      // pmeshR creation
+      tomeshr.apply_param( mesh, pmeshR );
+
       // GLMeshVBO recreation
       glmeshvbo.clear();
       glmeshvbo.setMesh( meshR );
+
+      // GLMeshVBOp creation
+      glmeshvbop.setMesh( pmeshR );
     }
 
   // i
@@ -491,11 +564,25 @@ int main( int argc, char **argv )
       exit(1);
     }
 
-  if ( ! OpenMesh::IO::read_mesh(mesh, argv[1]) )
+  mesh.request_vertex_colors();
+  OpenMesh::IO::Options options;
+  options += OpenMesh::IO::Options::VertexColor;
+  if ( !OpenMesh::IO::read_mesh(mesh, argv[1], options) )
     {
       std::cerr << "Error: Cannot read mesh from " << argv[1] << std::endl;
       return 1;
     }
+
+  cout << "options.vertex_has_color() = " << options.vertex_has_color() << endl;
+  cout << "mesh.has_vertex_colors() = " << mesh.has_vertex_colors() << endl;
+
+  // MyMesh::VertexIter v_it, v_end(mesh.vertices_end());
+  // for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
+  //   {
+  //     MyMesh::VertexHandle vh = *v_it;
+  //     MyMesh::Color c = mesh.color( vh );
+  //     printf("%u %u %u\n", c[0], c[1], c[2] );
+  //   }
 
   orbi.init( mesh );
 
@@ -541,12 +628,7 @@ int main( int argc, char **argv )
 
   if ( !pane.initShader() ) return -1;
   
-  // Point3f p( .0f, .0f, 25.0f );
-  // Vector3f v( .0f, .0f, -25.0f );
-  Point3f p( .0f, .0f, 2.5f );
-  Vector3f v( .0f, .0f, -2.5f );
-  pane.setViewPoint( p );
-  pane.setViewVector( v ); 
+  pane.setViewPoint( .0f, .0f, 2.5f );
   pane.setIsGradientBackground( false );
   //pane.setLightParameters( 0, myLight );
 
@@ -559,6 +641,17 @@ int main( int argc, char **argv )
   glmeshvbo.setMesh( meshR );
   glmeshvbo.setIsSmoothShading( true );
   glmeshvbo.setIsDrawWireframe( true );
+
+  // pane 2d
+  pane2d.init( width, height );
+  pane2d.initGL();
+  pane2d.initGLEW();
+  pane2d.setViewPoint( .5f, .5f, -2.5f );
+  pane2d.setLookPoint( .5f, .5f, .0f );
+  pane2d.setIsGradientBackground( false );
+
+  glmeshvbop.setIsSmoothShading( true );
+  glmeshvbop.setIsDrawWireframe( true );
 
   // GLFW rendering process
   while ( !glfwWindowShouldClose(window) )
