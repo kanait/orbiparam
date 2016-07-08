@@ -1,24 +1,54 @@
-#
-# Copyright (c) Mark J. Kilgard, 1996, 1997.
-#
+CC = g++
+TARGET = orbiparam
 
-LN = ln -s
-MV = mv
-RM = -rm -rf
+CXXFLAGS := -Wall -I../../megapoly/include/vecmath-c++-1.2-1.4 -I../../megapoly/render -I/usr/local/include -I/usr/local/Cellar/eigen/3.2.8/include/eigen3
 
-TARGETS = param
+RELEASE := 1
+ifeq ($(RELEASE),1)
+CXXFLAGS += -O3 -g
+else
+CXXFLAGS += -g
+endif
 
-CFLAGS = -fpermissive -I ../../Eigen/eigen-eigen-10219c95fe65 -I ../../OpenMesh/OpenMesh-3.3/src
-LDLIBS = -L../../OpenMesh/OpenMesh-3.3/build_linux/Build/lib -lOpenMeshCore
+SRC_DIR := .
+SRC := orbiparam.cxx
+INC := MyMesh.hxx Orbifold.hxx ShortestPathDijkstra.hxx ToMeshR.hxx VertexPQ.hxx
+#INC += $(shell find ../render -name "*.hxx")
+#INC += $(shell find ../render -name "*.h")
 
-SRCS = param.cxx
-HEADERS =
-OBJS = $(SRCS:.c=.o)
+LIBS_PATH = 
 
-default : $(TARGETS)
+LIBS = -L/usr/local/lib -lOpenMeshCore -lGLEW -lglfw3 -framework OpenGL
+LIBS += -lpng -lz
 
-param : $(OBJS)
-	$(CC) -o $@ $(CFLAGS) $(OBJS) $(LDFLAGS) $(LDLIBS)
+#STATIC_LIBS = /usr/local/lib/libboost_filesystem.a
+#STATIC_LIBS += /usr/local/lib/libboost_system.a
+#STATIC_LIBS += /usr/local/lib/libboost_thread.a
 
+all:
+	@make $(TARGET)
+
+depend: .depend
+
+.depend: $(SRC)
+	@echo "Making dependencies ..."
+	@rm -f ./.depend
+	@$(CC) $(CXXFLAGS) -MM $^ >> ./.depend
+
+include .depend
+
+#%.o : %.cxx
+orbiparam.o : orbiparam.cxx
+	@echo "Compiling $< ..."
+	@$(CC) $(CXXFLAGS) -o $@ -c $<
+
+$(TARGET): $(SRC:.cxx=.o)
+	@echo "Linking $@..."
+	@$(CC) -o $@ $(SRC:.cxx=.o) $(LIBS_PATH) $(LIBS) $(STATIC_LIBS)
+
+.PHONY: clean
 clean:
-	$(RM) $(OBJS) $(TARGETS).exe *.stackdump
+	\rm -f $(SRC_DIR)/*.o
+	\rm -f $(TARGET)
+	\rm -f .depend
+
