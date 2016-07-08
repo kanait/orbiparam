@@ -21,6 +21,7 @@ int wei = MVW;
 #define SAVE_TEXCOORD 2
 int sav = SAVE_VERTEX;
 
+#if 0
 // Boundary vertex is fixed or not
 class Fixed {
 public:
@@ -34,6 +35,7 @@ private:
 };
 
 OpenMesh::VPropHandleT<Fixed> ffs;
+#endif
 
 #define FIXED_BOUNDARY 1
 #define NATURAL_BOUNDARY 2
@@ -239,7 +241,7 @@ public:
   void computeBoundaryMapping( MyMesh& mesh,
                                std::vector<double>& paramx,  std::vector<double>& paramy ) {
     // property handle to store a flag
-    mesh.add_property(ffs);
+    mesh.add_property(fffs);
   
     // construct boundary vertices
     std::vector<MyMesh::VertexHandle> bverts;
@@ -270,7 +272,7 @@ public:
     paramx[ bverts[0].idx() ] = cornerx[0];
     paramy[ bverts[0].idx() ] = cornery[0];
     // (0,0)
-    Fixed& ff = mesh.property( ffs, bverts[0] );
+    Fixed& ff = mesh.property( fffs, bverts[0] );
     ff.setIsFixed( true );
 
     int count = 1;
@@ -284,7 +286,7 @@ public:
             paramy[ bverts[i].idx() ] = cornery[count];
             if ( count == 2 ) // (1,1)
               {
-                Fixed& ff = mesh.property( ffs, bverts[i] );
+                Fixed& ff = mesh.property( fffs, bverts[i] );
                 ff.setIsFixed( true );
               }
             tl = 0.0;
@@ -488,7 +490,7 @@ public:
       {
         MyMesh::VertexHandle vh = *v_it;
         int i = vh.idx();
-        Fixed& ff = mesh.property( ffs, vh );
+        Fixed& ff = mesh.property( fffs, vh );
         if ( ff.isFixed() )
           {
             std::cout << "i " << i << " param " << paramx[i] << " " << paramy[i] << std::endl;
@@ -520,7 +522,7 @@ public:
       {
         MyMesh::VertexHandle vh = *v_it;
         //if ( !(mesh.is_boundary(vh)) ) 
-        Fixed& ff = mesh.property( ffs, vh );
+        Fixed& ff = mesh.property( fffs, vh );
         if ( !(ff.isFixed()) ) // not fixed
           {
             paramx[vh.idx()] = paramy[vh.idx()] = 0.0;
@@ -580,7 +582,7 @@ public:
       {
         MyMesh::VertexHandle vh = *v_it;
         int i = vh.idx();
-        Fixed& ff = mesh.property( ffs, vh );
+        Fixed& ff = mesh.property( fffs, vh );
         if ( !(ff.isFixed()) ) // not fixed
           {
             VVWeights& vvw = mesh.property(vvws,*v_it);
@@ -715,7 +717,7 @@ public:
       {
         MyMesh::VertexHandle vh = *v_it;
         int i = vh.idx();
-        Fixed& ff = mesh.property( ffs, vh );
+        Fixed& ff = mesh.property( fffs, vh );
         if ( ff.isFixed() )
           {
             std::cout << "i " << i << " param " << paramx[i] << " " << paramy[i] << std::endl;
@@ -767,7 +769,7 @@ public:
       }
   };
 
-  MyMesh::VertexVertexIter start_vv_iter( MyMesh::VertexVertexIter& vv_it,
+  MyMesh::VertexVertexIter start_vv_iter( MyMesh::VertexVertexIter vv_it,
                                           MyMesh::VertexHandle& pvt ) {
     int c = 0;
     while (1)

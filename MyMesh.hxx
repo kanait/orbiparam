@@ -16,4 +16,18 @@ private:
 
 OpenMesh::EPropHandleT<Elen> elen;
 
+// Boundary vertex is fixed or not
+class Fixed {
+public:
+  Fixed(): isFixed_(false) {};
+  ~Fixed(){};
+  bool isFixed() const { return isFixed_; };
+  void setIsFixed( bool f ) { isFixed_ = f; };
+
+private:
+  bool isFixed_;
+};
+
+OpenMesh::VPropHandleT<Fixed> fffs;
+
 #endif // _MYMESH_HXX
