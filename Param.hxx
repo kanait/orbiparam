@@ -3,6 +3,8 @@
 
 #include "MyMesh.hxx"
 
+#define EIGEN_NO_DEBUG
+
 #include <Eigen/Sparse>
 #include <Eigen/OrderingMethods>
 typedef Eigen::Triplet<double> T;
