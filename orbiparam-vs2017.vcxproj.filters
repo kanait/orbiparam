@@ -30,6 +30,9 @@
     <ClInclude Include="VertexPQ.hxx">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Param.hxx">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="orbiparam.cxx">

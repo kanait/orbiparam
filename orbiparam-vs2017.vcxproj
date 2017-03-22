@@ -132,6 +132,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\ResearchTraining\OpenMesh\OpenMesh-6.3\src;..\..\ResearchTraining\Eigen\eigen-eigen-67e894c6cd8f;..\..\megapoly\render;..\..\megapoly\include\vecmath-c++-1.2-1.4;..\..\megapoly\lib\glfw-3.2.1.bin.WIN64\include;..\..\megapoly\lib\glew-2.0.0\include;..\..\megapoly\lib\lpng1628-vs2017;..\..\megapoly\lib\zlib-1.2.11;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -144,6 +146,7 @@
   <ItemGroup>
     <ClInclude Include="MyMesh.hxx" />
     <ClInclude Include="Orbifold.hxx" />
+    <ClInclude Include="Param.hxx" />
     <ClInclude Include="ShortestPathDijkstra.hxx" />
     <ClInclude Include="ToMeshR.hxx" />
     <ClInclude Include="VertexPQ.hxx" />
