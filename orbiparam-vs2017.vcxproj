@@ -131,7 +131,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\ResearchTraining\OpenMesh\OpenMesh-6.3\src;..\..\ResearchTraining\Eigen\eigen-eigen-67e894c6cd8f;..\..\megapoly\render;..\..\megapoly\include\vecmath-c++-1.2-1.4;..\..\megapoly\lib\glfw-3.2.1.bin.WIN64\include;..\..\megapoly\lib\glew-2.0.0\include;..\..\megapoly\lib\lpng1628-vs2017;..\..\megapoly\lib\zlib-1.2.11;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\ResearchTraining\OpenMesh\OpenMesh-7.1\src;..\..\..\ResearchTraining\Eigen\eigen-eigen-323c052e1731;..\..\..\megapoly\render_Eigen;..\..\..\megapoly\lib\glfw-3.2.1.bin.WIN64\include;..\..\..\megapoly\lib\glew-2.1.0\include;..\..\..\megapoly\lib\lpng1634-vs2017;..\..\..\megapoly\lib\zlib-1.2.11;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
@@ -139,7 +139,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\ResearchTraining\OpenMesh\OpenMesh-6.3\build-x64-vs2017\Build\lib;..\..\megapoly\lib\glfw-3.2.1.bin.WIN64\lib-vc2017;..\..\megapoly\lib\glew-2.0.0\lib\Release\x64;..\..\megapoly\lib\lpng1628-vs2017\projects\vstudio\x64\Release Library</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\ResearchTraining\OpenMesh\OpenMesh-7.1\build-vs2017-x64\Build\lib;..\..\..\megapoly\lib\glfw-3.2.1.bin.WIN64\lib-vc2017;..\..\..\megapoly\lib\glew-2.1.0\lib\Release\x64;..\..\..\megapoly\lib\lpng1634-vs2017\projects\vstudio\x64\Release Library</AdditionalLibraryDirectories>
       <AdditionalDependencies>OpenMeshCore.lib;OpenMeshTools.lib;glfw3.lib;glew32.lib;libpng16.lib;zlib.lib;glu32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

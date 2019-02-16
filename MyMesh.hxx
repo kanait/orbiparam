@@ -3,7 +3,17 @@
 
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
-typedef OpenMesh::TriMesh_ArrayKernelT<> MyMesh;
+
+struct MyTraits : public OpenMesh::DefaultTraits
+{
+  typedef OpenMesh::Vec3d Point; // use double-values points
+  typedef OpenMesh::Vec3d Normal; // use double-values points
+  typedef OpenMesh::Vec2d TexCoord; // use double-values points
+};
+
+typedef OpenMesh::TriMesh_ArrayKernelT<MyTraits>  MyMesh;
+//typedef OpenMesh::TriMesh_ArrayKernelT<> MyMesh;
+
 typedef OpenMesh::Vec3d OMVector3d;
 
 class Elen {

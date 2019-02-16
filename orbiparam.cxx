@@ -1,6 +1,6 @@
 ﻿////////////////////////////////////////////////////////////////////
 //
-// $Id: $
+// $Id: orbiparam.cxx 2019/02/17 02:39:10 kanai Exp $
 //
 // Copyright (c) 2004-2015 by Takashi Kanai. All rights reserved.
 //
@@ -17,11 +17,11 @@
 
 #include "mydef.h"
 
-#include <Point3.h>
-#include <Vector3.h>
-#ifdef VM_INCLUDE_NAMESPACE
-using namespace kh_vecmath;
-#endif // VM_INCLUDE_NAMESPACE
+// #include <Point3.h>
+// #include <Vector3.h>
+// #ifdef VM_INCLUDE_NAMESPACE
+// using namespace kh_vecmath;
+// #endif // VM_INCLUDE_NAMESPACE
 
 #include "GLPanel.hxx"
 #include "GLMaterial.hxx"
