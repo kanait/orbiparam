@@ -136,44 +136,63 @@ public:
   // A weight has to be doubled for natural boundary as described in [Karni 05]
   //
   double computeCotangentWeight( MyMesh& mesh, MyMesh::VertexIHalfedgeIter& vih_it ) {
-    MyMesh::HalfedgeHandle iheh( *vih_it ); // vih_it.handle();
+    return computeCotangentWeight( mesh, (OpenMesh::SmartHalfedgeHandle&) *vih_it );
+  };
+
+  double computeCotangentWeight( MyMesh& mesh, OpenMesh::SmartHalfedgeHandle& iheh ) {
+    // right face
+    //auto iheh( *vih_it ); // vih_it.handle();
+    //MyMesh::HalfedgeHandle iheh( *vih_it ); // vih_it.handle();
     // if ( mesh.from_vertex_handle( iheh ) == vh ) std::cout << "i from" << std::endl;
     // else if ( mesh.to_vertex_handle( iheh ) == vh ) std::cout << "i to" << std::endl;
-    //MyMesh::HalfedgeHandle next_iheh = iheh.next();
-    MyMesh::HalfedgeHandle next_iheh = mesh.next_halfedge_handle( *vih_it ); 
+    //auto next_iheh = iheh.next();
+    //MyMesh::HalfedgeHandle next_iheh = mesh.next_halfedge_handle( *vih_it ); 
     // if ( mesh.from_vertex_handle( next_iheh ) == vh ) std::cout << "next i from" << std::endl;
     // else if ( mesh.to_vertex_handle( next_iheh ) == vh ) std::cout << "next i to" << std::endl
-
     // MyMesh::Point p0, p1, p2;
-    auto p0 = mesh.point( mesh.to_vertex_handle( next_iheh ) );
-    auto p1 = mesh.point( mesh.from_vertex_handle( iheh ) );
-    auto p2 = mesh.point( mesh.to_vertex_handle( iheh ) );
+    auto p0 = mesh.point( iheh.next().to() );
+    auto p1 = mesh.point( iheh.from() );
+    auto p2 = mesh.point( iheh.to() );
+    // auto p0 = mesh.point( mesh.to_vertex_handle( next_iheh ) );
+    // auto p1 = mesh.point( mesh.from_vertex_handle( iheh ) );
+    // auto p2 = mesh.point( mesh.to_vertex_handle( iheh ) );
     double al = cotw( p0, p1, p2 );
 
     // left face
-    MyMesh::HalfedgeHandle mheh = mesh.opposite_halfedge_handle( iheh );
+    // MyMesh::HalfedgeHandle mheh = mesh.opposite_halfedge_handle( iheh );
     // if ( mesh.from_vertex_handle( mheh ) == vh ) std::cout << "m from" << std::endl;
     // else if ( mesh.to_vertex_handle( mheh ) == vh ) std::cout << "m to" << std::endl;
-    MyMesh::HalfedgeHandle next_mheh = mesh.next_halfedge_handle( mheh );
-
-    p0 = mesh.point( mesh.to_vertex_handle( next_mheh ) );
-    p1 = mesh.point( mesh.from_vertex_handle( mheh ) );
-    p2 = mesh.point( mesh.to_vertex_handle( mheh ) );
-    double be = cotw( p0, p1, p2 );
+    // MyMesh::HalfedgeHandle next_mheh = mesh.next_halfedge_handle( mheh );
+    auto mheh = iheh.opp();
+    auto p3 = mesh.point( mheh.next().to() );
+    auto p4 = mesh.point( mheh.from() );
+    auto p5 = mesh.point( mheh.to() );
+    // p0 = mesh.point( mesh.to_vertex_handle( next_mheh ) );
+    // p1 = mesh.point( mesh.from_vertex_handle( mheh ) );
+    // p2 = mesh.point( mesh.to_vertex_handle( mheh ) );
+    double be = cotw( p3, p4, p5 );
 
     //return (al + be) / 2.0;
     return (al + be);
   };
 
   double computeMeanValueWeight( MyMesh& mesh, MyMesh::VertexIHalfedgeIter& vih_it ) {
-    //MyMesh::Point p0, p1, p2;
+    return computeMeanValueWeight( mesh, (OpenMesh::SmartHalfedgeHandle&) *vih_it );
+  };
 
+  double computeMeanValueWeight( MyMesh& mesh, OpenMesh::SmartHalfedgeHandle& iheh ) {
     // gamma
-    MyMesh::HalfedgeHandle iheh( *vih_it ); // vih_it.handle();
-    MyMesh::HalfedgeHandle next_iheh = mesh.next_halfedge_handle( iheh );
-    auto p0 = mesh.point( mesh.from_vertex_handle( next_iheh ) );
-    auto p1 = mesh.point( mesh.to_vertex_handle( next_iheh ) );
-    auto p2 = mesh.point( mesh.from_vertex_handle( iheh ) );
+    //auto iheh( *vih_it ); // vih_it.handle();
+    // auto next_iheh = iheh.next();
+    //MyMesh::HalfedgeHandle iheh( *vih_it ); // vih_it.handle();
+    //MyMesh::HalfedgeHandle next_iheh = mesh.next_halfedge_handle( iheh );
+    //MyMesh::Point p0, p1, p2;
+    auto p0 = mesh.point( iheh.next().from() );
+    auto p1 = mesh.point( iheh.next().to() );
+    auto p2 = mesh.point( iheh.from() );
+    // auto p0 = mesh.point( mesh.from_vertex_handle( next_iheh ) );
+    // auto p1 = mesh.point( mesh.to_vertex_handle( next_iheh ) );
+    // auto p2 = mesh.point( mesh.from_vertex_handle( iheh ) );
     double ga = tan2w( p0, p1, p2 );
 #if 0  
     std::cout << "\t gamma p0 " << mesh.from_vertex_handle( next_iheh ).idx() << " "
@@ -182,12 +201,16 @@ public:
 #endif  
   
     // delta
-    MyMesh::HalfedgeHandle mheh = mesh.opposite_halfedge_handle( iheh );
-    MyMesh::HalfedgeHandle next_mheh = mesh.next_halfedge_handle( mheh );
-    p0 = mesh.point( mesh.from_vertex_handle( mheh ) ); // i
-    p1 = mesh.point( mesh.from_vertex_handle( next_mheh ) ); //j
-    p2 = mesh.point( mesh.to_vertex_handle( next_mheh ) );
-    double de = tan2w( p0, p1, p2 );
+    auto mheh = iheh.opp();
+    // MyMesh::HalfedgeHandle mheh = mesh.opposite_halfedge_handle( iheh );
+    // MyMesh::HalfedgeHandle next_mheh = mesh.next_halfedge_handle( mheh );
+    auto p3 = mesh.point( mheh.from() ); // i
+    auto p4 = mesh.point( mheh.next().from() ); //j
+    auto p5 = mesh.point( mheh.next().to() );
+    // p0 = mesh.point( mesh.from_vertex_handle( mheh ) ); // i
+    // p1 = mesh.point( mesh.from_vertex_handle( next_mheh ) ); //j
+    // p2 = mesh.point( mesh.to_vertex_handle( next_mheh ) );
+    double de = tan2w( p3, p4, p5 );
 #if 0
     std::cout << "\t delta p0 " << mesh.from_vertex_handle( mheh ).idx() << " "
               << " p1 "  << mesh.from_vertex_handle( next_mheh ).idx() << " "
@@ -195,7 +218,7 @@ public:
 #endif
 
     // return (ga + de) / (p0 - p1).length();
-    return (ga + de) / (p0 - p1).norm();
+    return (ga + de) / (p3 - p4).norm();
   };
 
   void constructBoundary( MyMesh& mesh, std::vector<MyMesh::VertexHandle>& bverts ) {
@@ -404,14 +427,16 @@ public:
     //
     // compute weights
     //
-    MyMesh::VertexIter v_it, v_end(mesh.vertices_end());
-    for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
+    // MyMesh::VertexIter v_it, v_end(mesh.vertices_end());
+    // for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
+    for ( auto vh : mesh.vertices() )
       {
         // for check
         //std::cout << i << " " << v_it.handle().idx() << std::endl;
         //if ( i != v_it.handle().idx() ) std::cout << "ng" << std::endl;
 
-        VVWeights& vvw = mesh.property(vvws,*v_it);
+        VVWeights& vvw = mesh.property(vvws, vh);
+        //VVWeights& vvw = mesh.property(vvws,*v_it);
         double wd = 0.0;
         vvw.addWeight( wd );
         //MyMesh::VertexHandle vh = v_it.handle();
@@ -421,6 +446,18 @@ public:
         MyMesh::VertexHandle vh = *v_it;
         std::cout << "i = " << vh.idx() << std::endl;
 #endif
+        //OpenMesh::SmartVertexHandle vh(*v_it);
+        for ( auto vih : vh.incoming_halfedges() )
+          {
+            double wdc;
+            if ( wei_ == COTW )
+              wdc = computeCotangentWeight( mesh, vih );
+            else if ( wei_ == MVW )
+              wdc = computeMeanValueWeight( mesh, vih );
+            vvw.addWeight( wdc );
+            wd -= wdc;
+          }
+#if 0
         MyMesh::VertexIHalfedgeIter vih_it;
         for (vih_it=mesh.vih_iter( *v_it ); vih_it.is_valid(); ++vih_it)
           {
@@ -432,6 +469,7 @@ public:
             vvw.addWeight( wdc );
             wd -= wdc;
           }
+#endif
 
         vvw.setWeight( 0, wd );
 
@@ -449,21 +487,26 @@ public:
     // build up sparse matrix A
     std::cout << "Setup sparse matrix ..." << std::endl;
     std::vector<Eigen::Triplet<double> > tripletList;
-    for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
+    // MyMesh::VertexIter v_it, v_end(mesh.vertices_end());
+    // for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
+    for ( auto vh : mesh.vertices() )
       {
-        MyMesh::VertexHandle vh = *v_it;
+        //MyMesh::VertexHandle vh = *v_it;
         int i = vh.idx();
-        if ( !(mesh.is_boundary(*v_it)) )
+        // if ( !(mesh.is_boundary(vh)) )
+        if ( !(vh.is_boundary()) )
           {
-            VVWeights& vvw = mesh.property(vvws,*v_it);
+            VVWeights& vvw = mesh.property(vvws, vh);
             tripletList.push_back( Eigen::Triplet<double>(i, i, vvw.w(0)) );
-            int k;
-            MyMesh::VertexVertexIter vv_it;
-            for (k=1, vv_it=mesh.vv_iter( *v_it ); vv_it.is_valid(); ++vv_it, ++k)
+            int k=1;
+            // MyMesh::VertexVertexIter vv_it;
+            // for (k=1, vv_it=mesh.vv_iter( vh ); vv_it.is_valid(); ++vv_it, ++k)
+            for ( auto vvh : vh.vertices() )
               {
-                MyMesh::VertexHandle vvh = *vv_it;
+                // MyMesh::VertexHandle vvh = *vv_it;
                 int j = vvh.idx();
                 tripletList.push_back( Eigen::Triplet<double>(i, j, vvw.w(k)) );
+                ++k;
               }
           }
         else
@@ -544,11 +587,11 @@ public:
     computeBoundaryMapping( mesh, paramx, paramy );
 #endif
 
-    MyMesh::VertexIter v_it, v_end(mesh.vertices_end());
 #if 1
-    for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
+    //for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
+    for ( auto vh : mesh.vertices() )
       {
-        MyMesh::VertexHandle vh = *v_it;
+        //MyMesh::VertexHandle vh = *v_it;
         //if ( !(mesh.is_boundary(vh)) ) 
         Fixed& ff = mesh.property( fffs, vh );
         if ( !(ff.isFixed()) ) // not fixed
@@ -566,18 +609,31 @@ public:
     // compute weights
     //
     //MyMesh::VertexIter v_it, v_end(mesh.vertices_end());
-    for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
+    // for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
+    for ( auto vh : mesh.vertices() )
       {
         // for check
         //std::cout << i << " " << v_it.handle().idx() << std::endl;
         //if ( i != v_it.handle().idx() ) std::cout << "ng" << std::endl;
 
-        VVWeights& vvw = mesh.property(vvws,*v_it);
+        VVWeights& vvw = mesh.property(vvws, vh);
         double wd = 0.0;
         vvw.addWeight( wd );
         //MyMesh::VertexHandle vh = v_it.handle();
         //std::cout << "v " << i << std::endl;
 
+        // OpenMesh::SmartVertexHandle vh(*v_it);
+        for ( auto vih : vh.incoming_halfedges() )
+          {
+            double wdc;
+            if ( wei_ == COTW )
+              wdc = computeCotangentWeight( mesh, vih );
+            else if ( wei_ == MVW )
+              wdc = computeMeanValueWeight( mesh, vih );
+            vvw.addWeight( wdc );
+            wd -= wdc;
+          }
+#if 0
         MyMesh::VertexIHalfedgeIter vih_it;
         for (vih_it=mesh.vih_iter( *v_it ); vih_it.is_valid(); ++vih_it)
           {
@@ -589,6 +645,7 @@ public:
             vvw.addWeight( wdc );
             wd -= wdc;
           }
+#endif
 
         vvw.setWeight( 0, wd );
 
@@ -606,33 +663,38 @@ public:
     // build up sparse matrix A
     std::cout << "Setup sparse matrix ..." << std::endl;
     std::vector<Eigen::Triplet<double> > tripletList;
-    for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
+    for ( auto vh : mesh.vertices() )
+    // MyMesh::VertexIter v_it, v_end(mesh.vertices_end());
+    // for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
       {
-        MyMesh::VertexHandle vh = *v_it;
+        //MyMesh::VertexHandle vh = *v_it;
         int i = vh.idx();
         Fixed& ff = mesh.property( fffs, vh );
         if ( !(ff.isFixed()) ) // not fixed
           {
-            VVWeights& vvw = mesh.property(vvws,*v_it);
+            VVWeights& vvw = mesh.property(vvws, vh);
 
             // set for x coord
             tripletList.push_back( Eigen::Triplet<double>(i, i, vvw.w(0)) );
             // set for y coord
             tripletList.push_back( Eigen::Triplet<double>(i+n_vt, i+n_vt, vvw.w(0)) );
-            int k;
-            MyMesh::VertexVertexIter vv_it;
-            for (k=1, vv_it=mesh.vv_iter( *v_it ); vv_it.is_valid(); ++vv_it, ++k)
+            int k=1;
+            for ( auto vvh : vh.vertices() )
+            // MyMesh::VertexVertexIter vv_it;
+            // for (k=1, vv_it=mesh.vv_iter( *v_it ); vv_it.is_valid(); ++vv_it, ++k)
               {
-                MyMesh::VertexHandle vvh = *vv_it;
+                // MyMesh::VertexHandle vvh = *vv_it;
                 int j = vvh.idx();
                 // set for x coord
                 tripletList.push_back( Eigen::Triplet<double>(i, j, vvw.w(k)) );
                 // set for y coord
                 tripletList.push_back( Eigen::Triplet<double>(i+n_vt, j+n_vt, vvw.w(k)) );
+                ++k;
               }
 
             // boundary vertices
-            if ( mesh.is_boundary(*v_it) )
+            // if ( mesh.is_boundary(*v_it) )
+            if ( vh.is_boundary() )
               {
 #if 0
                 std::cout << "id " << i << std::endl;
@@ -643,7 +705,7 @@ public:
 #endif
                 // get neighbor boundary vertices
                 MyMesh::VertexVertexIter vv_it;
-                vv_it=mesh.vv_iter( *v_it );
+                vv_it=mesh.vv_iter( vh );
                 MyMesh::VertexHandle sbvh = *vv_it, ebvh;
                 while ( vv_it.is_valid() )
                   {
@@ -672,7 +734,7 @@ public:
                   }
                 else if ( wei == MVW )
                   {
-                    MyMesh::Point p0 = mesh.point( *v_it );
+                    MyMesh::Point p0 = mesh.point( vh );
                     MyMesh::Point p1 = mesh.point( sbvh );
                     MyMesh::Point p2 = mesh.point( ebvh );
                     // double ir1 = 1.0/((p1 - p0).length());
