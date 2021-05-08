@@ -1,6 +1,6 @@
 ﻿////////////////////////////////////////////////////////////////////
 //
-// $Id: orbiparam.cxx 2019/02/17 02:39:10 kanai Exp $
+// $Id: orbiparam.cxx 2021/05/08 15:11:12 kanai Exp $
 //
 // Copyright (c) 2004-2015 by Takashi Kanai. All rights reserved.
 //
@@ -486,16 +486,14 @@ static void mousebutton_callback(GLFWwindow* window, int button, int action, int
           gluUnProject(window_x,window_y, winZ,  MV,  P, viewport, &objX, &objY, &objZ);
           MyMesh::Point q( objX, objY, objZ );
 
-          MyMesh::VertexIter v_it, v_end(mesh.vertices_end());
-          for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
+          for ( auto vh : mesh.vertices() )
             {
-              MyMesh::Point p = mesh.point( *v_it );
-
+              MyMesh::Point p = mesh.point( vh );
               if( (p-q).norm()<0.01)
                 {
-                  int sel_i = v_it->idx();
+                  int sel_i = vh.idx();
                   cout << "vt " << sel_i << " selected. " << endl;
-                  cs_vertices.push_back( *v_it );
+                  cs_vertices.push_back( vh );
                   // printf("Intersected at %d\n",i);
                   // printf("Pt [ %3.3f,%3.3f,%3.3f ]\n",X[i].x(), X[i].y(), X[i].z());
                   break;

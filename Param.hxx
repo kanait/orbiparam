@@ -107,8 +107,10 @@ public:
   double cotw( MyMesh::Point& p0, MyMesh::Point& p1, MyMesh::Point& p2 ) {
     OMVector3d c1( p1 - p0 );
     OMVector3d c2( p2 - p0 );
-    double sin = OpenMesh::cross( c1, c2 ).length();
-    double angle = std::fabs( std::atan2(sin, OpenMesh::dot(c1, c2)) );
+    //double sin = OpenMesh::cross( c1, c2 ).length();
+    double sin = c1.cross( c2 ).norm();
+    //double angle = std::fabs( std::atan2(sin, OpenMesh::dot(c1, c2)) );
+    double angle = std::fabs( std::atan2(sin, c1.dot(c2)) );
 
     // std::cout << "\tcot " << 1.0 / std::tan( angle ) << " tan " << std::tan( M_PI_2 - angle ) << std::endl;
     // if ( 1.0 / std::tan( angle ) - std::tan( M_PI_2 - angle ) > 1.0e-05 )
@@ -119,8 +121,10 @@ public:
   double tan2w( MyMesh::Point& p0, MyMesh::Point& p1, MyMesh::Point& p2 ) {
     OMVector3d c1( p1 - p0 );
     OMVector3d c2( p2 - p0 );
-    double sin = OpenMesh::cross( c1, c2 ).length();
-    double angle = std::fabs( std::atan2(sin, OpenMesh::dot(c1, c2)) );
+    //double sin = OpenMesh::cross( c1, c2 ).length();
+    double sin = c1.cross( c2 ).norm();
+    //double angle = std::fabs( std::atan2(sin, OpenMesh::dot(c1, c2)) );
+    double angle = std::fabs( std::atan2(sin, c1.dot(c2)) );
 
     // std::cout << "\tcot " << 1.0 / std::tan( angle ) << " tan " << std::tan( M_PI_2 - angle ) << std::endl;
     // if ( 1.0 / std::tan( angle ) - std::tan( M_PI_2 - angle ) > 1.0e-05 )
@@ -132,17 +136,18 @@ public:
   // A weight has to be doubled for natural boundary as described in [Karni 05]
   //
   double computeCotangentWeight( MyMesh& mesh, MyMesh::VertexIHalfedgeIter& vih_it ) {
-    MyMesh::HalfedgeHandle iheh = *vih_it; // vih_it.handle();
+    MyMesh::HalfedgeHandle iheh( *vih_it ); // vih_it.handle();
     // if ( mesh.from_vertex_handle( iheh ) == vh ) std::cout << "i from" << std::endl;
     // else if ( mesh.to_vertex_handle( iheh ) == vh ) std::cout << "i to" << std::endl;
+    //MyMesh::HalfedgeHandle next_iheh = iheh.next();
     MyMesh::HalfedgeHandle next_iheh = mesh.next_halfedge_handle( *vih_it ); 
     // if ( mesh.from_vertex_handle( next_iheh ) == vh ) std::cout << "next i from" << std::endl;
     // else if ( mesh.to_vertex_handle( next_iheh ) == vh ) std::cout << "next i to" << std::endl
 
-    MyMesh::Point p0, p1, p2;
-    p0 = mesh.point( mesh.to_vertex_handle( next_iheh ) );
-    p1 = mesh.point( mesh.from_vertex_handle( iheh ) );
-    p2 = mesh.point( mesh.to_vertex_handle( iheh ) );
+    // MyMesh::Point p0, p1, p2;
+    auto p0 = mesh.point( mesh.to_vertex_handle( next_iheh ) );
+    auto p1 = mesh.point( mesh.from_vertex_handle( iheh ) );
+    auto p2 = mesh.point( mesh.to_vertex_handle( iheh ) );
     double al = cotw( p0, p1, p2 );
 
     // left face
@@ -161,14 +166,14 @@ public:
   };
 
   double computeMeanValueWeight( MyMesh& mesh, MyMesh::VertexIHalfedgeIter& vih_it ) {
-    MyMesh::Point p0, p1, p2;
+    //MyMesh::Point p0, p1, p2;
 
     // gamma
-    MyMesh::HalfedgeHandle iheh = *vih_it; // vih_it.handle();
+    MyMesh::HalfedgeHandle iheh( *vih_it ); // vih_it.handle();
     MyMesh::HalfedgeHandle next_iheh = mesh.next_halfedge_handle( iheh );
-    p0 = mesh.point( mesh.from_vertex_handle( next_iheh ) );
-    p1 = mesh.point( mesh.to_vertex_handle( next_iheh ) );
-    p2 = mesh.point( mesh.from_vertex_handle( iheh ) );
+    auto p0 = mesh.point( mesh.from_vertex_handle( next_iheh ) );
+    auto p1 = mesh.point( mesh.to_vertex_handle( next_iheh ) );
+    auto p2 = mesh.point( mesh.from_vertex_handle( iheh ) );
     double ga = tan2w( p0, p1, p2 );
 #if 0  
     std::cout << "\t gamma p0 " << mesh.from_vertex_handle( next_iheh ).idx() << " "
@@ -189,12 +194,25 @@ public:
               << " p2 "  << mesh.to_vertex_handle( next_mheh ).idx() << std::endl;
 #endif
 
-    return (ga + de) / (p0 - p1).length();
+    // return (ga + de) / (p0 - p1).length();
+    return (ga + de) / (p0 - p1).norm();
   };
 
   void constructBoundary( MyMesh& mesh, std::vector<MyMesh::VertexHandle>& bverts ) {
+
     // find a boundary vertex
     MyMesh::VertexHandle vh0;
+    for ( auto vh : mesh.vertices() )
+      {
+        if ( mesh.is_boundary( vh ) )
+          {
+            vh0 = vh; // v_it.handle();
+            //std::cout << "boundary vertex " << vh0.idx() << std::endl;
+            break;
+          }
+      }
+
+#if 0
     MyMesh::VertexIter v_it, v_end(mesh.vertices_end());
     for (v_it=mesh.vertices_begin(); v_it!=v_end; ++v_it)
       {
@@ -206,9 +224,10 @@ public:
             break;
           }
       }
+#endif
 
     std::vector<MyMesh::VertexHandle> bv_tmp;
-  
+
     // construct boundary vertices
     MyMesh::VertexHandle vh = vh0, prev_vh;
     do {
@@ -262,9 +281,11 @@ public:
     int bvn = bverts.size();
     for ( int i = 0; i < bvn-1; ++i )
       {
-        blength += (mesh.point( bverts[i] ) - mesh.point( bverts[i+1] )).length();
+        // blength += (mesh.point( bverts[i] ) - mesh.point( bverts[i+1] )).length();
+        blength += (mesh.point( bverts[i] ) - mesh.point( bverts[i+1] )).norm();
       }
-    blength += (mesh.point( bverts[bvn-1] ) - mesh.point( bverts[0] )).length();
+    // blength += (mesh.point( bverts[bvn-1] ) - mesh.point( bverts[0] )).length();
+    blength += (mesh.point( bverts[bvn-1] ) - mesh.point( bverts[0] )).norm();
     std::cout << "boundary length " << blength << std::endl;
 
     // determine corner vertices
@@ -280,7 +301,8 @@ public:
     int count = 1;
     for ( int i = 0; i < bvn-1; ++i )
       {
-        tl += (mesh.point( bverts[i] ) - mesh.point( bverts[i+1] )).length();
+        // tl += (mesh.point( bverts[i] ) - mesh.point( bverts[i+1] )).length();
+        tl += (mesh.point( bverts[i] ) - mesh.point( bverts[i+1] )).norm();
         if ( (tl > l4) && (count < RECTANGLE) )
           {
             cornerv.push_back( bverts[i] );
@@ -312,7 +334,8 @@ public:
             double pll = 0.0;
             for ( int j = 0; j < (int) innerv.size()-1; ++j )
               {
-                pll += (mesh.point( innerv[j] ) - mesh.point( bverts[j+1] )).length();
+                // pll += (mesh.point( innerv[j] ) - mesh.point( bverts[j+1] )).length();
+                pll += (mesh.point( innerv[j] ) - mesh.point( bverts[j+1] )).norm();
               }
             // compute the ratio of length and compute parameter
             double cll = 0.0;
@@ -325,7 +348,8 @@ public:
                 paramx[ innerv[j].idx() ] = px;
                 paramy[ innerv[j].idx() ] = py;
                 // std::cout << "\t t " << t << " param " << px << " " << py << std::endl;
-                cll += (mesh.point( innerv[j] ) - mesh.point( bverts[j+1] )).length();
+                // cll += (mesh.point( innerv[j] ) - mesh.point( bverts[j+1] )).length();
+                cll += (mesh.point( innerv[j] ) - mesh.point( bverts[j+1] )).norm();
               }
 
             // next poly line
@@ -341,7 +365,8 @@ public:
     double pll = 0.0;
     for ( int j = 0; j < (int) innerv.size()-1; ++j )
       {
-        pll += (mesh.point( innerv[j] ) - mesh.point( bverts[j+1] )).length();
+        // pll += (mesh.point( innerv[j] ) - mesh.point( bverts[j+1] )).length();
+        pll += (mesh.point( innerv[j] ) - mesh.point( bverts[j+1] )).norm();
       }
     // compute the ratio of length and compute parameter
     double cll = 0.0;
@@ -354,7 +379,8 @@ public:
         paramx[ innerv[j].idx() ] = px;
         paramy[ innerv[j].idx() ] = py;
         // std::cout << "\t t " << t << " param " << px << " " << py << std::endl;
-        cll += (mesh.point( innerv[j] ) - mesh.point( bverts[j+1] )).length();
+        // cll += (mesh.point( innerv[j] ) - mesh.point( bverts[j+1] )).length();
+        cll += (mesh.point( innerv[j] ) - mesh.point( bverts[j+1] )).norm();
       }
   };
 
@@ -649,8 +675,10 @@ public:
                     MyMesh::Point p0 = mesh.point( *v_it );
                     MyMesh::Point p1 = mesh.point( sbvh );
                     MyMesh::Point p2 = mesh.point( ebvh );
-                    double ir1 = 1.0/((p1 - p0).length());
-                    double ir2 = 1.0/((p2 - p0).length());
+                    // double ir1 = 1.0/((p1 - p0).length());
+                    double ir1 = 1.0/((p1 - p0).norm());
+                    // double ir2 = 1.0/((p2 - p0).length());
+                    double ir2 = 1.0/((p2 - p0).norm());
                     // std::cout << ir1 << " " << ir2 << std::endl;
                     // for x coords
                     tripletList.push_back( Eigen::Triplet<double>(i, i2+n_vt, ir2) );
