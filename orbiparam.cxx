@@ -1,8 +1,8 @@
 ﻿////////////////////////////////////////////////////////////////////
 //
-// $Id: orbiparam.cxx 2021/05/08 23:05:08 kanai Exp $
+// $Id: orbiparam.cxx 2021/06/13 03:19:58 kanai Exp $
 //
-// Copyright (c) 2004-2015 by Takashi Kanai. All rights reserved.
+// Copyright (c) Takashi Kanai. All rights reserved.
 //
 ////////////////////////////////////////////////////////////////////
 
@@ -17,43 +17,14 @@
 
 #include "mydef.h"
 
-// #include <Point3.h>
-// #include <Vector3.h>
-// #ifdef VM_INCLUDE_NAMESPACE
-// using namespace kh_vecmath;
-// #endif // VM_INCLUDE_NAMESPACE
-
 #include "GLPanel.hxx"
 #include "GLMaterial.hxx"
 #include "VWIO.hxx"
-#include "PNGImage.hxx"
-#include "PNGImage.hxx"
 
-int width = 800;
-int height = 800;
-// int width = 1024;
-// int height = 1024;
-
-static float myLight[] = {
-  0.0f, 0.0f, 100.0f, 1.0f,
-  0.8f, 0.8f, 0.8f, 1.0f,
-  1.0f, 1.0f, 1.0f, 1.0f,
-  0.8f, 0.8f, 0.8f, 1.0f,
-  1.0f, // 0.1f,
-  0.0f,  // 0.05f
-  0.0f  // 0.05f
-};
-
-static float myMatl[] = {
-  0.2f, 0.2f, 0.2f, 1.0f, 
-  //  0.6f, 0.8f, 0.6f, 1.0f, 
-  0.8f, 0.8f, 0.6f, 1.0f, 
-  // 0.6f, 0.6f, 0.8f, 1.0f, 
-  //  0.6f, 0.8f, 0.8f, 1.0f, 
-  0.0f, 0.0f, 0.0f, 1.0f, 
-  0.8f, 0.8f, 0.8f, 1.0f, 
-  80.0f
-};
+// int width = 800;
+// int height = 800;
+int width = 1024;
+int height = 1024;
 
 GLPanel pane;
 GLPanel pane2d;
@@ -78,36 +49,15 @@ unsigned short render_mode = RENDER_VBO;
 // current shader for shading
 unsigned short shading_program = PHONG_SHADING;
 
-// #include <sstream>
+////////////////////////////////////////////////////////////////////////////////////
 
-// #include "strutil.h"
-//#include "gzfileopen.h"
+#include "c11timer.hxx"
 
-//GzFileOpen gzfile;
-
-#if 0
-/*
-** シェーダ
-*/
-static GLuint vertShader;
-static GLuint fragShader;
-static GLuint gl2Program;
-#endif
+C11Timer c11fps;
+double max_c11fps = 0.0;
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-#include "nvtimer.h"
-
-timer fps(10);
-char buf[BUFSIZ];
-char txt[BUFSIZ];
-float max_fps = 0.0f;
-bool first = true;
-
-////////////////////////////////////////////////////////////////////////////////////
-
-#include "SMFRIO.hxx"
-#include "OFFRIO.hxx"
 #include "MeshR.hxx"
 #include "GLMeshVBO.hxx"
 
@@ -131,6 +81,11 @@ MyMesh  mesh;
 Orbifold orbi;
 std::vector<MyMesh::VertexHandle> cs_vertices;
 bool isCalculated = false;
+
+////////////////////////////////////////////////////////////////////////////////////
+
+#include "stb_util.hxx"
+mySTB stb;
 
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -619,10 +574,15 @@ int main( int argc, char **argv )
   pane.initGL();
   pane.initGLEW();
 
+  // load texture
+  tex_id = stb.stb_load_texture( argv[2], pane );
+
+#if 0
   std::vector<unsigned char> img;
   int format, w, h;
   tex_id = pane.loadTexture( argv[2], img, &format, &w, &h );
   pane.assignTexture( tex_id, img, format, w, h );
+#endif
 
   if ( !pane.initShader() ) return -1;
   
@@ -651,26 +611,36 @@ int main( int argc, char **argv )
   glmeshvbop.setIsSmoothShading( true );
   glmeshvbop.setIsDrawWireframe( true );
 
+  c11fps.ResetFPS();
+
   // GLFW rendering process
   while ( !glfwWindowShouldClose(window) )
     {
       display();
 
+      char buf[BUFSIZ];
+      char txt[BUFSIZ];
+
       // for measuring fps
-      fps.frame();
-      if ( fps.timing_updated() )
-        {
-          float f = fps.get_fps();
-          if ( max_fps < f ) max_fps = f;
-          sprintf( buf,"%.3f fps - max %.3f fps", f, max_fps );
-        }
+      double f = c11fps.CheckGetFPS();
+      if ( max_c11fps < f ) max_c11fps = f;
+      sprintf( buf, "max %.3f fps", max_c11fps );
+      // // for measuring fps
+      // fps.frame();
+      // if ( fps.timing_updated() )
+      //   {
+      //     float f = fps.get_fps();
+      //     if ( max_fps < f ) max_fps = f;
+      //     sprintf( buf,"%.3f fps - max %.3f fps", f, max_fps );
+      //   }
       sprintf( txt, "Orbifold Parameterization - %s", buf );
       glfwSetWindowTitle( window, txt );
 
       if ( pngflag )
         {
-          PNGImage pi( width, height, false );
-          pi.capture_and_write("screen.png");
+          stb.stb_capture_and_write( "screen.png", width, height, 4, pane );
+          // PNGImage pi( width, height, false );
+          // pi.capture_and_write("screen.png");
           pngflag = false;
         }
 
