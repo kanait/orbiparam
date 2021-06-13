@@ -1,8 +1,8 @@
-﻿if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   message(FATAL_ERROR "DO NOT BUILD in-tree.")
 endif()
 
-cmake_minimum_required ( VERSION 3.8 )
+cmake_minimum_required ( VERSION 3.10 )
 project( orbiparam )
 
 SET(CMAKE_C_COMPILER_WORKS 1 CACHE INTERNAL "")
@@ -44,7 +44,7 @@ if(UNIX)
   )
   target_link_libraries( orbiparam
                          PUBLIC
-			 -lGL -lGLU
+			 -lOpenGL -lGLU
 			 -lOpenMeshCore
 			 -lglfw -lGLEW
   )
