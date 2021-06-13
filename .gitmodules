@@ -1,0 +1,9 @@
+[submodule "external/eigen"]
+	path = external/eigen
+	url = https://gitlab.com/libeigen/eigen.git
+[submodule "external/stb"]
+	path = external/stb
+	url = https://github.com/nothings/stb.git
+[submodule "external/render_Eigen"]
+	path = external/render_Eigen
+	url = https://github.com/kanait/render_Eigen.git
