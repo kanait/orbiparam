@@ -1,8 +1,9 @@
 ////////////////////////////////////////////////////////////////////
 //
-// $Id: orbiparam.cxx 2021/06/13 21:23:18 kanai Exp $
+// $Id: orbiparam.cxx 2021/06/13 22:12:11 kanai Exp $
 //
-// Copyright (c) Takashi Kanai. All rights reserved.
+// Copyright (c) 2021 Takashi Kanai
+// Released under the MIT license
 //
 ////////////////////////////////////////////////////////////////////
 

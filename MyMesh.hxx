@@ -1,5 +1,14 @@
+////////////////////////////////////////////////////////////////////
+//
+// $Id: MyMesh.hxx 2021/06/13 22:12:48 kanai Exp $
+//
+// Copyright (c) 2021 Takashi Kanai
+// Released under the MIT license
+//
+////////////////////////////////////////////////////////////////////
+
 #ifndef _MYMESH_HXX
-#define _MYMESH_HXX
+#define _MYMESH_HXX 1
 
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>

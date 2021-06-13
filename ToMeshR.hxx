@@ -1,5 +1,14 @@
+////////////////////////////////////////////////////////////////////
+//
+// $Id: ToMeshR.hxx 2021/06/13 22:13:49 kanai Exp $
+//
+// Copyright (c) 2021 Takashi Kanai
+// Released under the MIT license
+//
+////////////////////////////////////////////////////////////////////
+
 #ifndef _TOMESHR_HXX
-#define _TOMESHR_HXX
+#define _TOMESHR_HXX 1
 
 #include "MyMesh.hxx"
 #include "MeshR.hxx"

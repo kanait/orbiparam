@@ -1,5 +1,14 @@
-﻿#ifndef _PARAM_HXX
-#define _PARAM_HXX
+﻿////////////////////////////////////////////////////////////////////
+//
+// $Id: Param.hxx 2021/06/13 22:13:22 kanai Exp $
+//
+// Copyright (c) 2021 Takashi Kanai
+// Released under the MIT license
+//
+////////////////////////////////////////////////////////////////////
+
+#ifndef _PARAM_HXX
+#define _PARAM_HXX 1
 
 #include "MyMesh.hxx"
 

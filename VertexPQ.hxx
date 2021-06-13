@@ -1,5 +1,14 @@
+////////////////////////////////////////////////////////////////////
+//
+// $Id: VertexPQ.hxx 2021/06/13 22:14:01 kanai Exp $
+//
+// Copyright (c) 2021 Takashi Kanai
+// Released under the MIT license
+//
+////////////////////////////////////////////////////////////////////
+
 #ifndef _VERTEXPQ_HXX
-#define _VERTEXPQ_HXX
+#define _VERTEXPQ_HXX 1
 
 #include <queue>
 using namespace std;

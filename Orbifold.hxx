@@ -1,5 +1,14 @@
+////////////////////////////////////////////////////////////////////
+//
+// $Id: Orbifold.hxx 2021/06/13 22:13:08 kanai Exp $
+//
+// Copyright (c) 2021 Takashi Kanai
+// Released under the MIT license
+//
+////////////////////////////////////////////////////////////////////
+
 #ifndef _ORBIFOLD_HXX
-#define _ORBIFOLD_HXX
+#define _ORBIFOLD_HXX 1
 
 #include "MyMesh.hxx"
 #include "ShortestPathDijkstra.hxx"

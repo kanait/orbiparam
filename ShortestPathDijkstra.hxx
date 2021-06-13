@@ -1,5 +1,14 @@
+////////////////////////////////////////////////////////////////////
+//
+// $Id: ShortestPathDijkstra.hxx 2021/06/13 22:13:39 kanai Exp $
+//
+// Copyright (c) 2021 Takashi Kanai
+// Released under the MIT license
+//
+////////////////////////////////////////////////////////////////////
+
 #ifndef _SHORTESTPATHDIJKSTRA_HXX
-#define _SHORTESTPATHDIJKSTRA_HXX
+#define _SHORTESTPATHDIJKSTRA_HXX 1
 
 #include <iostream>
 #include <limits>
