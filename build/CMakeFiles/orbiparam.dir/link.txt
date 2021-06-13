@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/orbiparam.dir/orbiparam.cxx.o  -o orbiparam  -Wl,-rpath,/usr/local/lib /usr/local/lib/libOpenMeshCore.so /usr/local/lib/libOpenMeshTools.so /usr/lib/x86_64-linux-gnu/libOpenGL.so /usr/lib/x86_64-linux-gnu/libGLX.so /usr/lib/x86_64-linux-gnu/libGLU.so /usr/lib/x86_64-linux-gnu/libglfw.so /usr/lib/x86_64-linux-gnu/libGLEW.so 
