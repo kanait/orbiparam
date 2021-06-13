@@ -1,3 +1,0 @@
-/home/kanai/Dropbox/code/orbiparam/build/CMakeFiles/rebuild_cache.dir
-/home/kanai/Dropbox/code/orbiparam/build/CMakeFiles/edit_cache.dir
-/home/kanai/Dropbox/code/orbiparam/build/CMakeFiles/orbiparam.dir
