@@ -136,7 +136,9 @@ public:
   // A weight has to be doubled for natural boundary as described in [Karni 05]
   //
   double computeCotangentWeight( MyMesh& mesh, MyMesh::VertexIHalfedgeIter& vih_it ) {
-    return computeCotangentWeight( mesh, (OpenMesh::SmartHalfedgeHandle&) *vih_it );
+    OpenMesh::SmartHalfedgeHandle a( *vih_it );
+    return computeCotangentWeight( mesh, a );
+    //    return computeCotangentWeight( mesh, (OpenMesh::SmartHalfedgeHandle&) *vih_it );
   };
 
   double computeCotangentWeight( MyMesh& mesh, OpenMesh::SmartHalfedgeHandle& iheh ) {
@@ -177,7 +179,9 @@ public:
   };
 
   double computeMeanValueWeight( MyMesh& mesh, MyMesh::VertexIHalfedgeIter& vih_it ) {
-    return computeMeanValueWeight( mesh, (OpenMesh::SmartHalfedgeHandle&) *vih_it );
+    OpenMesh::SmartHalfedgeHandle a( *vih_it );
+    return computeMeanValueWeight( mesh, a );
+    //return computeMeanValueWeight( mesh, (OpenMesh::SmartHalfedgeHandle&) *vih_it );
   };
 
   double computeMeanValueWeight( MyMesh& mesh, OpenMesh::SmartHalfedgeHandle& iheh ) {
