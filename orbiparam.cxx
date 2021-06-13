@@ -1,6 +1,6 @@
-﻿////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
 //
-// $Id: orbiparam.cxx 2021/06/13 03:19:58 kanai Exp $
+// $Id: orbiparam.cxx 2021/06/13 21:23:18 kanai Exp $
 //
 // Copyright (c) Takashi Kanai. All rights reserved.
 //
@@ -340,6 +340,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
           mesh.set_texcoord2D( vh, t );
         }
 
+#if 0
       // write mesh to output.obj
       std::cout << "save mesh ... ";
       OpenMesh::IO::Options opt;
@@ -351,6 +352,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
           return;
         }
       std::cout << "done." << std::endl;
+#endif
 
       // cs_vertices.clear();
       isCalculated = true;
@@ -371,6 +373,22 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
       // GLMeshVBOp creation
       glmeshvbop.setMesh( pmeshR );
+    }
+
+  // s
+  else if ( (key == GLFW_KEY_S) && (action == GLFW_PRESS) )
+    {
+      // write mesh to output.obj
+      std::cout << "save mesh ... ";
+      OpenMesh::IO::Options opt;
+      opt += OpenMesh::IO::Options::VertexTexCoord;
+      // opt += OpenMesh::IO::Options::VertexColor;
+      if ( !OpenMesh::IO::write_mesh(mesh, "output.obj", opt) )
+        {
+          std::cerr << "Cannot write mesh to file. " << std::endl;
+          return;
+        }
+      std::cout << "done." << std::endl;
     }
 
   // i
@@ -625,22 +643,12 @@ int main( int argc, char **argv )
       double f = c11fps.CheckGetFPS();
       if ( max_c11fps < f ) max_c11fps = f;
       sprintf( buf, "max %.3f fps", max_c11fps );
-      // // for measuring fps
-      // fps.frame();
-      // if ( fps.timing_updated() )
-      //   {
-      //     float f = fps.get_fps();
-      //     if ( max_fps < f ) max_fps = f;
-      //     sprintf( buf,"%.3f fps - max %.3f fps", f, max_fps );
-      //   }
       sprintf( txt, "Orbifold Parameterization - %s", buf );
       glfwSetWindowTitle( window, txt );
 
       if ( pngflag )
         {
           stb.stb_capture_and_write( "screen.png", width, height, 4, pane );
-          // PNGImage pi( width, height, false );
-          // pi.capture_and_write("screen.png");
           pngflag = false;
         }
 
