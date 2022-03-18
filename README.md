@@ -68,7 +68,8 @@ Then an executable "orbiparam" is created if compilation completed successfully.
 ### Windows
 
 A solution file (orbiparam-vs2019.sln) is provided for compiling on VS2019.
-For compilation, windows library for OpenMesh, GLFW and GLEW are required and then set their include and library directories appropriately on the property of a VS2019 project file.
+orbiparam-vs2022.sln is also provided for VS2022.
+For compilation, windows library for OpenMesh, GLFW and GLEW are required and then set their include and library directories appropriately on the property of VS2019 and VS2022 project files.
 
 ## Authors
 
