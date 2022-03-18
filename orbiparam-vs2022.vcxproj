@@ -130,14 +130,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\external\ResearchTraining\OpenMesh\OpenMesh-9.0.0\src;.\external\megapoly\lib\glfw-3.3.6.bin.WIN64\include;.\external\glew-2.2.0\include;.\external\stb;.\external\eigen;.\external\render_Eigen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\external\OpenMesh-9.0.0\src;.\external\glfw-3.3.6.bin.WIN64\include;.\external\glew-2.2.0\include;.\external\stb;.\external\eigen;.\external\render_Eigen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\external\OpenMesh\OpenMesh-9.0.0\build-vs2022-x64\Build\lib;.\external\glfw-3.3.6.bin.WIN64\lib-vc2022;.\external\glew-2.2.0\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\external\OpenMesh-9.0.0\build_vs2022\Build\lib;.\external\glfw-3.3.6.bin.WIN64\lib-vc2022;.\external\glew-2.2.0\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>OpenMeshCore.lib;OpenMeshTools.lib;glfw3.lib;glew32.lib;glu32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
