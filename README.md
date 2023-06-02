@@ -8,19 +8,19 @@ Only type I is implemented in this implementation.
 
 ## Getting Started
 
-At first, you may try to use binary release (x64), 
-which is available from [here](https://github.com/kanait/orbiparam/releases/tag/v1.0).
-Uncompress zip file and then execute orbiparam_bimba100K_x64_ao.bat.
+At first, you may try using the binary release (x64),
+which is available [here](https://github.com/kanait/orbiparam/releases/tag/v1.0).
+Uncompress the zip file and then execute orbiparam_bimba100K_x64_ao.bat.
 
-On display window, click left mouse button three times to select three points on the surface of a mesh, and press 'x' key to compute parameterization. If the process is successfully finished, a shortest path (black line) passing three points is displayed.
+On the display window, click the left mouse button three times to select three points on the surface of a mesh, and press the 'x' key to compute parameterization. If the process successfully finishes, a shortest path (black line) passing through the three points will be displayed.
 
-press '5' key to show texture mapping of a mesh by using computed 2D texture parameters.
+Press the '5' key to show the texture mapping of the mesh using the computed 2D texture parameters.
 
-press '6' key to show 2D parameterization.
+Press the '6' key to show the 2D parameterization.
 
-press 'w' key to hide/appear a shortest path.
+Press the 'w' key to hide/appear the shortest path.
 
-press 's' key to save a obj file with computed 2D texture parameters.
+Press the 's' key to save an OBJ file with the computed 2D texture parameters.
 
 ## Compilation
 
@@ -33,7 +33,7 @@ The following libraries are required for successfully compiling this software.
 ### [stb](https://github.com/nothings/stb)
 ### [render_Eigen](https://github.com/kanait/render_Eigen)
 
-First you execute "git clone" with with "--recursive" option. Then Eigen, stb, render_Eigen are installed automatically as submodules.
+First, execute the "git clone" command with the "--recursive" option. This will clone the repository and automatically install Eigen, stb, and render_Eigen as submodules.
 
 ```
 % git clone https://github.com/kanait/orbiparam.git --recursive
@@ -42,8 +42,8 @@ First you execute "git clone" with with "--recursive" option. Then Eigen, stb, r
 
 OpenMesh is installed from source.
 ```
-% tar zxf OpenMesh-8.1.tar.gz
-% cd OpenMesh-8.1
+% tar zxf OpenMesh-x.x.tar.gz
+% cd OpenMesh-x.x
 % mkdir build
 % cd build
 % cmake .. && sudo make all install
@@ -63,13 +63,14 @@ Then execute in orbiparam directory as follows:
 % cmake ..
 % make
 ```
-Then an executable "orbiparam" is created if compilation completed successfully.
+Once the compilation process is completed successfully, an executable named "orbiparam" will be created. 
 
 ### Windows
 
-A solution file (orbiparam-vs2019.sln) is provided for compiling on VS2019.
-orbiparam-vs2022.sln is also provided for VS2022.
-For compilation, windows library for OpenMesh, GLFW and GLEW are required and then set their include and library directories appropriately on the property of VS2019 and VS2022 project files.
+To compile the software on Visual Studio 2019, a solution file named "orbiparam-vs2019.sln" is provided. For Visual Studio 2022, there is also a solution file named "orbiparam-vs2022.sln".
+
+To successfully compile the software, you will need the following libraries for Windows: OpenMesh, GLFW, and GLEW.
+Make sure you have these libraries installed on your system. Then, set the include and library directories appropriately in the project files of Visual Studio 2019 and Visual Studio 2022. This can be done in the project's properties, where you can specify the paths for including headers and linking libraries.
 
 ## Authors
 
