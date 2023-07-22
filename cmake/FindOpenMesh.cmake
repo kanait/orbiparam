@@ -53,13 +53,15 @@
 #                                                                            
 #===========================================================================
 
-cmake_minimum_required(VERSION 2.8.9)
+cmake_minimum_required(VERSION 2.8.12)
 
 #if already found via finder or simulated finder in openmesh CMakeLists.txt, skip the search
 IF (NOT OPENMESH_FOUND) 
   SET (SEARCH_PATHS 
     /usr/local/
     /usr/
+    "${PROJECT_SOURCE_DIR}/external/OpenMesh"
+    "${CMAKE_SOURCE_DIR}/OpenMesh/src/OpenMesh"
     "${CMAKE_SOURCE_DIR}/OpenMesh/src/OpenMesh"
     "${CMAKE_SOURCE_DIR}/libs_required/OpenMesh/src/OpenMesh"
     "${CMAKE_SOURCE_DIR}/../OpenMesh/src/OpenMesh"
